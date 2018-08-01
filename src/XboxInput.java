@@ -198,8 +198,8 @@ public class XboxInput {
               case "0":
                 //A
                 int power = 40;
-                String message = (Integer.toString(power) + ", " + Integer
-                    .toString(power));
+                String message = (Integer.toString(power) + "," + Integer
+                    .toString(power) + "," + Integer.toString(0));
                 server.setPower(message);
                 break;
             }
