@@ -120,33 +120,34 @@ public class XboxInput {
 
           if ((value > 0.8) && !position.equals(current.getIdentifier()
               .getName())) {
+            //Positive direction
             switch (current.getIdentifier().getName()) {
               case "z":
                 //LT from 0 to 0.996
                 position = "z";
                 if (value == 0) {
                   int power = 0;
-                  String message = (Integer.toString(power) + ", " + Integer
+                  String message = (Integer.toString(power) + "," + Integer
                       .toString(power));
                   server.setPower(message);
                 } else if (value <= 0.25) {
                   int power = 10;
-                  String message = (Integer.toString(power) + ", " + Integer
+                  String message = (Integer.toString(power) + "," + Integer
                       .toString(power));
                   server.setPower(message);
                 } else if (value > 0.25 && value <= 0.5) {
                   int power = 20;
-                  String message = (Integer.toString(power) + ", " + Integer
+                  String message = (Integer.toString(power) + "," + Integer
                       .toString(power));
                   server.setPower(message);
                 } else if (value > 0.5 && value <= 0.75) {
                   int power = 30;
-                  String message = (Integer.toString(power) + ", " + Integer
+                  String message = (Integer.toString(power) + "," + Integer
                       .toString(power));
                   server.setPower(message);
                 } else if (value > 0.75 && value <= 1.0) {
                   int power = 40;
-                  String message = (Integer.toString(power) + ", " + Integer
+                  String message = (Integer.toString(power) + "," + Integer
                       .toString(power));
                   server.setPower(message);
                 }
@@ -160,8 +161,36 @@ public class XboxInput {
 //                  server.setPower(message);
 //                }
                 break;
+              case "x":
+                //Left thumbstick - Right
+                System.out.println("Left thumbstick Right by: " + value);
+                position = "x";
+                break;
+              case "y":
+                //Left thumbstick - Down
+                System.out.println("Left thumbstick Down by: " + value);
+                position = "y";
+                break;
             }
 
+          }
+
+          if (value < -0.8 && !(position.equals(current.getIdentifier()
+              .getName()))){
+            //negative direction
+            switch (current.getIdentifier().getName()){
+              case "x":
+                //Left thumbstick - Left
+                System.out.println("Left thumbstick Left by: " + value);
+                position = "x";
+                break;
+              case "y":
+                //Left thumbstick - Up
+                position = "y";
+                System.out.println("Left thumbstick Up by: " + value);
+                break;
+
+            }
           }
         } else {
           if (value == 1.0) {
