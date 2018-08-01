@@ -3,8 +3,10 @@ import java.net.*;
 
 public class UDPClient {
 
-  private byte[] receiveData;
-  private byte[] sendData;
+  private byte[] receiveData = new byte[1024];
+  private byte[] sendData = new byte[1024];
+  private DatagramSocket clientSocket;
+  private DatagramPacket receivePacket;
 
 
   public static void main(String[] args) {
@@ -12,42 +14,38 @@ public class UDPClient {
   }
 
   public UDPClient() {
-    run();
+    //Send initial packet for server to recognise client
+    startRunning();
   }
 
-  public void run() {
+
+  public void startRunning() {
     try {
-      //No port number - for any local port.
-      DatagramSocket clientSocket = new DatagramSocket();
+      clientSocket = new DatagramSocket();
       InetAddress IPAddress = InetAddress.getByName("localhost");
-      sendData = new byte[1024];
-      receiveData = new byte[1024];
-
-      //Read a line from the user.
-      BufferedReader inFromUser =
-          new BufferedReader(new InputStreamReader(System.in));
-      String sentence = inFromUser.readLine();
+      String sentence = "You are now connected to UDPClient";
       sendData = sentence.getBytes();
-
-      //Send a packet to the server's port
-      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length,
+      DatagramPacket sendPacket = new DatagramPacket(sendData,
+          sendData.length,
           IPAddress, 5555);
       clientSocket.send(sendPacket);
+      //Listen for commands
+      listen();
+    } catch (IOException e1) {
+      e1.printStackTrace();
+    }
+  }
 
-      //Receive a packet from server
-      DatagramPacket receivePacket = new DatagramPacket(receiveData,
-          receiveData.length);
-      clientSocket.receive(receivePacket);
-
-      String modifiedSentence = new String(receivePacket.getData());
-      System.out.println("FROM SERVER:" + modifiedSentence);
-      
-      clientSocket.close();
-
-    } catch (SocketException e) {
-      e.printStackTrace();
-    } catch (UnknownHostException e) {
-      e.printStackTrace();
+  public void listen() {
+    try {
+      while (true) {
+        //Receive a packet from server
+        receivePacket = new DatagramPacket(receiveData,
+            receiveData.length);
+        clientSocket.receive(receivePacket);
+        String command = new String(receivePacket.getData());
+        System.out.println("FROM SERVER:" + command);
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }

@@ -8,16 +8,15 @@ import net.java.games.input.Controller.Type;
 
 public class XboxInput {
 
-  private static Server server;
-  private static TestClient client;
+  private static UDPServer server;
 
   public static void main(String[] args) {
     //Two threads - one runs the server, one changes the power for the server
     Thread server_thread_running = new Thread() {
       public void run() {
         System.out.println("Server thread running");
-        server = new Server();
-        server.run();
+        server = new UDPServer();
+        server.startRunning();
       }
     };
     Thread controller_thread_running = new Thread() {
