@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 
-public class UDPServer {
+public class UDPServer2 {
 
 
   public static void main(String[] args) {
@@ -16,32 +16,21 @@ public class UDPServer {
   private int port;
   private String command;
 
-  public UDPServer() {
+  public UDPServer2() {
   }
 
   public void startRunning() {
     try {
-      String address = "192.168.1.40";
-      InetAddress IPAddressServer = InetAddress.getByAddress(address.getBytes
-          ());
-      int serverPort = 5555;
-      System.out.println("Connected to server: " + IPAddressServer + " at "
-          + "port: " +
-          serverPort);
-
-
-      String sentence;
-      serverSocket = new DatagramSocket(3322);
-
-      //Receives packet from the car to know the address of car
+      serverSocket = new DatagramSocket(5555);
       DatagramPacket receivePacket = new DatagramPacket(receiveData,
           receiveData.length);
       serverSocket.receive(receivePacket);
-      sentence = new String(receivePacket.getData());
+      String sentence = new String(receivePacket.getData());
       System.out.println("RECEIVED: " + sentence);
       IPAddress = receivePacket.getAddress();
       port = receivePacket.getPort();
       System.out.println("Connected to: " + IPAddress + " at port: " + port);
+
 
     } catch (IOException e) {
       e.printStackTrace();

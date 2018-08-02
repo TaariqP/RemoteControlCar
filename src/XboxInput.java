@@ -1,10 +1,12 @@
-import java.util.stream.Collectors;
-import net.java.games.input.*;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import net.java.games.input.Component;
+import net.java.games.input.Controller;
 import net.java.games.input.Controller.Type;
+import net.java.games.input.ControllerEnvironment;
+import net.java.games.input.Event;
+import net.java.games.input.EventQueue;
 
 public class XboxInput {
 
@@ -75,15 +77,15 @@ public class XboxInput {
     RB = Button 5
     Back = Button 6
     Start = Button 7
-    Left Thumbstick button = Button 8
-    Right thumbstick button = Button 9
+    Left thumb stick button = Button 8
+    Right thumb stick button = Button 9
     DPAD = HAT SWITCH values up down left right
-    //FOR LT RESTS AT -1.5 (WHICH IS ACTUALLY 0) and increases to 0.996
-    simialr for RT to -0.9
+    //FOR LT RESTS AT 0 and increases to 0.996
+    similarly for RT to -0.9
     LT = Z-Axis + X AXIS? ----- Goes from -1.52 to 0.996
     RT = Z-Axis + X Rotation? ---- GOES FROM 0 to -0.996 (increase)
-    Left Thumstick = ROTATION(Left = X Rotation 1.0, Up = Y Rotation -1.0)
-    Right thumbstick = AXIS
+    Left thumb stick = ROTATION(Left = X Rotation 1.0, Up = Y Rotation -1.0)
+    Right thumb stick = AXIS
      */
 
     Event event;
@@ -110,55 +112,20 @@ public class XboxInput {
 
         if (current.isAnalog()) {
           //Back Triggers and Analogue Sticks
-          //Current implementation to include LT for speeding up one car
-
-
-          /*TODO: Check if input is LT and measure amount. Scale according to
-           TODO: power level of the car. Send command Immediately via Server
-          */
+          //Current implementation to include Left Analog Stick for speeding up
+          // one
+          // car
 
           if ((value > 0.8) && !position.equals(current.getIdentifier()
               .getName())) {
             //Positive direction
+            int leftPower;
+            int rightPower;
+            String command;
             switch (current.getIdentifier().getName()) {
               case "z":
                 //LT from 0 to 0.996
                 position = "z";
-                if (value == 0) {
-                  int power = 0;
-                  String message = (Integer.toString(power) + "," + Integer
-                      .toString(power));
-                  server.setPower(message);
-                } else if (value <= 0.25) {
-                  int power = 10;
-                  String message = (Integer.toString(power) + "," + Integer
-                      .toString(power));
-                  server.setPower(message);
-                } else if (value > 0.25 && value <= 0.5) {
-                  int power = 20;
-                  String message = (Integer.toString(power) + "," + Integer
-                      .toString(power));
-                  server.setPower(message);
-                } else if (value > 0.5 && value <= 0.75) {
-                  int power = 30;
-                  String message = (Integer.toString(power) + "," + Integer
-                      .toString(power));
-                  server.setPower(message);
-                } else if (value > 0.75 && value <= 1.0) {
-                  int power = 40;
-                  String message = (Integer.toString(power) + "," + Integer
-                      .toString(power));
-                  server.setPower(message);
-                }
-//
-//                if (value > 0.5) {
-//                  //Increase to full power for testing (guessing power)
-//                  //tell server to send a power of 40.
-//                  int power = 50;
-//                  String message = (Integer.toString(power) + ", " + Integer
-//                      .toString(power));
-//                  server.setPower(message);
-//                }
                 break;
               case "x":
                 //Left thumbstick - Right
@@ -169,6 +136,11 @@ public class XboxInput {
                 //Left thumbstick - Down
                 System.out.println("Left thumbstick Down by: " + value);
                 position = "y";
+                leftPower = -100;
+                rightPower = -100;
+                command = (Integer.toString(leftPower) + "," + Integer
+                    .toString(rightPower) + "," + Integer.toString(0));
+                server.setPower(command);
                 break;
             }
 
@@ -177,27 +149,49 @@ public class XboxInput {
           if (value < -0.8 && !(position.equals(current.getIdentifier()
               .getName()))){
             //negative direction
+            int leftPower;
+            int rightPower;
+            String command;
             switch (current.getIdentifier().getName()){
               case "x":
                 //Left thumbstick - Left
                 System.out.println("Left thumbstick Left by: " + value);
                 position = "x";
+                leftPower = 0;
+                rightPower = 100;
+                command = (Integer.toString(leftPower) + "," + Integer
+                    .toString(rightPower) + "," + Integer.toString(0));
+                server.setPower(command);
                 break;
               case "y":
                 //Left thumbstick - Up
                 position = "y";
                 System.out.println("Left thumbstick Up by: " + value);
+                leftPower = 100;
+                rightPower = 100;
+                command = (Integer.toString(leftPower) + "," + Integer
+                    .toString(rightPower) + "," + Integer.toString(0));
+                server.setPower(command);
                 break;
 
             }
           }
         } else {
           if (value == 1.0) {
+            int power;
+            String message;
             switch (current.getIdentifier().getName()) {
               case "0":
                 //A
-                int power = 40;
-                String message = (Integer.toString(power) + "," + Integer
+                power = -100;
+                message = (Integer.toString(power) + "," + Integer
+                    .toString(power) + "," + Integer.toString(0));
+                server.setPower(message);
+                break;
+              case "1":
+                //B
+                power = 0;
+                message = (Integer.toString(power) + "," + Integer
                     .toString(power) + "," + Integer.toString(0));
                 server.setPower(message);
                 break;
