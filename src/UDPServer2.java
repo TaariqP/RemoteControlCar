@@ -23,13 +23,11 @@ public class UDPServer2 {
   public void startRunning() {
     try {
       String sentence;
+      serverSocket = new DatagramSocket(3322);
 
-      String address = "192.168.1.40";
+      String address = "localhost";
       InetAddress IPAddressServer = InetAddress.getByName(address);
       int serverPort = 5555;
-      System.out.println("Connected to server: " + IPAddressServer + " at "
-          + "port: " +
-          serverPort);
 
       //Send a packet to the Xbox Controller server
       sentence = "You are now connected to UDPSERVER2";
@@ -40,7 +38,6 @@ public class UDPServer2 {
       serverSocket.send(sendPacket);
 
       //Receive data from the car
-      serverSocket = new DatagramSocket(3322);
       DatagramPacket receivePacket = new DatagramPacket(receiveData,
           receiveData.length);
       serverSocket.receive(receivePacket);
@@ -49,7 +46,7 @@ public class UDPServer2 {
       IPAddress = receivePacket.getAddress();
       port = receivePacket.getPort();
       System.out.println("Connected to: " + IPAddress + " at port: " + port);
-
+      listen();
 
     } catch (IOException e) {
       e.printStackTrace();
@@ -61,11 +58,27 @@ public class UDPServer2 {
     sendCommands();
   }
 
+  public void listen() {
+    try {
+      while (true) {
+        //Receive a packet from server
+        receivePacket = new DatagramPacket(receiveData,
+            receiveData.length);
+        serverSocket.receive(receivePacket);
+        String command = new String(receivePacket.getData());
+        System.out.println("FROM SERVER:" + command);
+        setPower(command);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+  }
+
   public void sendCommands() {
     //Setup server side socket
 
     try {
-      //Send a packet back
       sendData = command.getBytes();
       DatagramPacket sendPacket =
           new DatagramPacket(sendData, sendData.length, IPAddress, port);
