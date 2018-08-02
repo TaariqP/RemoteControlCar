@@ -25,7 +25,7 @@ public class UDPServer {
       String sentence;
       serverSocket = new DatagramSocket(5555);
 
-      //Receives packet from the car to know the address of car
+      //Receives packet from the intermediate server to know the address
       DatagramPacket receivePacket = new DatagramPacket(receiveData,
           receiveData.length);
       serverSocket.receive(receivePacket);
