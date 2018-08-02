@@ -131,6 +131,11 @@ public class XboxInput {
                 //Left thumbstick - Right
                 System.out.println("Left thumbstick Right by: " + value);
                 position = "x";
+                leftPower = 100;
+                rightPower = 0;
+                command = (Integer.toString(leftPower) + "," + Integer
+                    .toString(rightPower) + "," + Integer.toString(0));
+                server.setPower(command);
                 break;
               case "y":
                 //Left thumbstick - Down
