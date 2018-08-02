@@ -21,17 +21,9 @@ public class UDPServer {
 
   public void startRunning() {
     try {
-      String address = "192.168.1.40";
-      InetAddress IPAddressServer = InetAddress.getByAddress(address.getBytes
-          ());
-      int serverPort = 5555;
-      System.out.println("Connected to server: " + IPAddressServer + " at "
-          + "port: " +
-          serverPort);
-
 
       String sentence;
-      serverSocket = new DatagramSocket(3322);
+      serverSocket = new DatagramSocket(5555);
 
       //Receives packet from the car to know the address of car
       DatagramPacket receivePacket = new DatagramPacket(receiveData,

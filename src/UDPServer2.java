@@ -21,7 +21,16 @@ public class UDPServer2 {
 
   public void startRunning() {
     try {
-      serverSocket = new DatagramSocket(5555);
+
+      String address = "192.168.1.40";
+      InetAddress IPAddressServer = InetAddress.getByAddress(address.getBytes
+          ());
+      int serverPort = 5555;
+      System.out.println("Connected to server: " + IPAddressServer + " at "
+          + "port: " +
+          serverPort);
+
+      serverSocket = new DatagramSocket(3322);
       DatagramPacket receivePacket = new DatagramPacket(receiveData,
           receiveData.length);
       serverSocket.receive(receivePacket);
