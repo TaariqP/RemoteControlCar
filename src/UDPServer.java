@@ -29,10 +29,12 @@ public class UDPServer {
       //Sends a packet to the intermediate server.
       sentence = "You are now connected to the XBOX CONTROLLER";
       sendData = sentence.getBytes();
+      IPAddress = InetAddress.getByName(serverAddress);
       DatagramPacket sendPacket = new DatagramPacket(sendData,
           sendData.length,
           IPAddress, port);
       serverSocket.send(sendPacket);
+      System.out.println("packet sent");
 
       //HardCoded Address test
 //      this.IPAddress = InetAddress.getByName("10.255.55.104");
