@@ -12,8 +12,9 @@ public class UDPServer {
   private byte[] sendData = new byte[1024];
   private DatagramSocket serverSocket;
   private DatagramPacket receivePacket;
+  private String serverAddress = "192.168.1.21";
   private InetAddress IPAddress;
-  private int port;
+  private int port = 3323;
   private String command;
 
   public UDPServer() {
@@ -25,26 +26,17 @@ public class UDPServer {
       String sentence;
       serverSocket = new DatagramSocket(5555);
 
-      //Receives packet from the intermediate server to know the address
-      DatagramPacket receivePacket = new DatagramPacket(receiveData,
-          receiveData.length);
-      serverSocket.receive(receivePacket);
-      sentence = new String(receivePacket.getData());
-      System.out.println("RECEIVED: " + sentence);
-      IPAddress = receivePacket.getAddress();
-      port = receivePacket.getPort();
-      System.out.println("Connected to: " + IPAddress + " at port: " + port);
-
-      //HardCoded Address test
-      this.IPAddress = InetAddress.getByName("10.255.55.104");
-      port = 3323;
-
-            sentence = "You are now connected to UDPSERVER2";
+      //Sends a packet to the intermediate server.
+      sentence = "You are now connected to the XBOX CONTROLLER";
       sendData = sentence.getBytes();
       DatagramPacket sendPacket = new DatagramPacket(sendData,
           sendData.length,
           IPAddress, port);
       serverSocket.send(sendPacket);
+
+      //HardCoded Address test
+//      this.IPAddress = InetAddress.getByName("10.255.55.104");
+//      port = 3323;
 
     } catch (IOException e) {
       e.printStackTrace();

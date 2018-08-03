@@ -13,7 +13,7 @@ public class UDPServer2 {
   private DatagramSocket serverSocket;
   private DatagramSocket clientSocket;
   private DatagramPacket receivePacket;
- // private String controllerAddress = "192.168.1.47";
+  // private String controllerAddress = "192.168.1.47";
   private InetAddress IPAddressController;
   private InetAddress IPAddressClient;
   private int clientPort = 3322;
@@ -26,32 +26,37 @@ public class UDPServer2 {
 
   public void startRunning() {
     try {
+
+      System.out.println("About to connect");
       String sentence;
       clientSocket = new DatagramSocket(3322);
       serverSocket = new DatagramSocket(3323);
 
-//      IPAddressController = InetAddress.getByName();
-//      //Send a packet to the Xbox Controller server
-//      sentence = "You are now connected to UDPSERVER2";
-//      sendData = sentence.getBytes();
-//      DatagramPacket sendPacket = new DatagramPacket(sendData,
-//          sendData.length,
-//          IPAddressController, serverPort);
-//      serverSocket.send(sendPacket);
+      //Receive a packet from the controllerServer
+      receivePacket = new DatagramPacket(receiveData,
+          receiveData.length);
+      serverSocket.receive(receivePacket);
+      sentence = new String(receivePacket.getData());
+      System.out.println("RECEIVED: " + sentence);
+      IPAddressController = receivePacket.getAddress();
+      serverPort = receivePacket.getPort();
+
+      System.out.println("Now Connected to controller: " +
+          IPAddressController +
+          " at port " + serverPort);
 
       //Receive data from the car
-      DatagramPacket receivePacket = new DatagramPacket(receiveData,
+      receivePacket = new DatagramPacket(receiveData,
           receiveData.length);
       clientSocket.receive(receivePacket);
       sentence = new String(receivePacket.getData());
       System.out.println("RECEIVED: " + sentence);
       IPAddressClient = receivePacket.getAddress();
       clientPort = receivePacket.getPort();
-//
-//      InetAddress IPAddressClient = InetAddress.getByName("192.168.1.20");
-//      clientPort = 3322;
-      System.out.println("Connected to: " + IPAddressClient + " at port: " +
-          clientPort);
+
+      System.out.println("Now Connected to Car: " + IPAddressClient + " at "
+          + "port " + clientPort);
+
       listen();
 
     } catch (IOException e) {
@@ -89,7 +94,7 @@ public class UDPServer2 {
       DatagramPacket sendPacket =
           new DatagramPacket(sendData, sendData.length, IPAddressClient,
               clientPort);
-      System.out.println("SENDING TO CAR: "+ command);
+      System.out.println("SENDING TO CAR: " + command);
       clientSocket.send(sendPacket);
 
     } catch (IOException e) {
