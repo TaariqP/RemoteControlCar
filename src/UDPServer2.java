@@ -13,7 +13,7 @@ public class UDPServer2 {
   private DatagramSocket serverSocket;
   private DatagramSocket clientSocket;
   private DatagramPacket receivePacket;
-  private String controllerAddress = "192.168.1.47";
+ // private String controllerAddress = "192.168.1.47";
   private InetAddress IPAddressController;
   private InetAddress IPAddressClient;
   private int clientPort = 3322;
@@ -30,15 +30,14 @@ public class UDPServer2 {
       clientSocket = new DatagramSocket(3322);
       serverSocket = new DatagramSocket(3323);
 
-      IPAddressController = InetAddress.getByName(controllerAddress);
-
-      //Send a packet to the Xbox Controller server
-      sentence = "You are now connected to UDPSERVER2";
-      sendData = sentence.getBytes();
-      DatagramPacket sendPacket = new DatagramPacket(sendData,
-          sendData.length,
-          IPAddressController, serverPort);
-      serverSocket.send(sendPacket);
+//      IPAddressController = InetAddress.getByName();
+//      //Send a packet to the Xbox Controller server
+//      sentence = "You are now connected to UDPSERVER2";
+//      sendData = sentence.getBytes();
+//      DatagramPacket sendPacket = new DatagramPacket(sendData,
+//          sendData.length,
+//          IPAddressController, serverPort);
+//      serverSocket.send(sendPacket);
 
       //Receive data from the car
       DatagramPacket receivePacket = new DatagramPacket(receiveData,

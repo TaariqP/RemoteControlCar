@@ -35,6 +35,17 @@ public class UDPServer {
       port = receivePacket.getPort();
       System.out.println("Connected to: " + IPAddress + " at port: " + port);
 
+      //HardCoded Address test
+      this.IPAddress = InetAddress.getByName("10.255.55.104");
+      port = 3323;
+
+            sentence = "You are now connected to UDPSERVER2";
+      sendData = sentence.getBytes();
+      DatagramPacket sendPacket = new DatagramPacket(sendData,
+          sendData.length,
+          IPAddress, port);
+      serverSocket.send(sendPacket);
+
     } catch (IOException e) {
       e.printStackTrace();
     }
