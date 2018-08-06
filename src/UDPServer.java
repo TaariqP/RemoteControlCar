@@ -65,4 +65,8 @@ public class UDPServer {
     }
   }
 
+  public void keepAlive(){
+
+  }
+
 }
