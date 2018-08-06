@@ -99,6 +99,7 @@ public class XboxInput {
       debug = new StringBuilder();
       EventQueue eventQueue = controller.getEventQueue();
       event = new Event();
+
       while (eventQueue.getNextEvent(event)) {
         current = event.getComponent();
         value = event.getValue();
@@ -106,6 +107,10 @@ public class XboxInput {
         if ((value < 0.3) && (value > -0.3) && position.equals(current
             .getIdentifier().getName())) {
           position = "";
+          String command = (Integer.toString(0) + "," + Integer
+                  .toString(0) + "," + Integer.toString(0));
+          server.setPower(command);
+
         }
         debug.append(current.getName() + " at: " + event.getNanos() + ", "
             + "changed to " + value);
@@ -172,8 +177,8 @@ public class XboxInput {
                 //Left thumbstick - Up
                 position = "y";
                 System.out.println("Left thumbstick Up by: " + value);
-                leftPower = 100;
-                rightPower = 100;
+                leftPower = 100; //calculatePower(value);
+                rightPower = 100; //calculatePower(value);
                 command = (Integer.toString(leftPower) + "," + Integer
                     .toString(rightPower) + "," + Integer.toString(0));
                 server.setPower(command);
@@ -203,10 +208,15 @@ public class XboxInput {
             }
           }
         }
-        System.out.println();
-        System.out.println(debug.toString());
+//        System.out.println();
+//        System.out.println(debug.toString());
 
       }
     }
+  }
+
+  public static int calculatePower(float value){
+    double power =  value * -100;
+    return (int) Math.round(power);
   }
 }
