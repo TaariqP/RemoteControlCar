@@ -14,24 +14,21 @@ public class XboxInput {
 
   public static void main(String[] args) {
     //Two threads - one runs the server, one changes the power for the server
-    Thread server_thread_running = new Thread() {
-      public void run() {
-        System.out.println("Server thread running");
-        server = new UDPServer();
-        server.startRunning();
-      }
-    };
-    Thread controller_thread_running = new Thread() {
-      public void run() {
-        System.out.println("Controller thread running");
-        runController();
-      }
-    };
+    Thread server_thread_running = new Thread(() -> {
+      System.out.println("Server thread running");
+      server = new UDPServer();
+      server.startRunning();
+    });
+    Thread controller_thread_running = new Thread(() -> {
+      System.out.println("Controller thread running");
+      runController();
+    });
     server_thread_running.start();
     controller_thread_running.start();
 
     try {
       server_thread_running.join();
+
       controller_thread_running.join();
     } catch (InterruptedException e) {
       e.printStackTrace();
@@ -108,7 +105,7 @@ public class XboxInput {
             .getIdentifier().getName())) {
           position = "";
           String command = (Integer.toString(0) + "," + Integer
-                  .toString(0) + "," + Integer.toString(0));
+              .toString(0) + "," + Integer.toString(0));
           server.setPower(command);
 
         }
@@ -146,8 +143,8 @@ public class XboxInput {
                 //Left thumbstick - Down
                 System.out.println("Left thumbstick Down by: " + value);
                 position = "y";
-                leftPower = -100;
-                rightPower = -100;
+                leftPower = -50;
+                rightPower = -50;
                 command = (Integer.toString(leftPower) + "," + Integer
                     .toString(rightPower) + "," + Integer.toString(0));
                 server.setPower(command);
@@ -157,12 +154,12 @@ public class XboxInput {
           }
 
           if (value < -0.8 && !(position.equals(current.getIdentifier()
-              .getName()))){
+              .getName()))) {
             //negative direction
             int leftPower;
             int rightPower;
             String command;
-            switch (current.getIdentifier().getName()){
+            switch (current.getIdentifier().getName()) {
               case "x":
                 //Left thumbstick - Left
                 System.out.println("Left thumbstick Left by: " + value);
@@ -193,7 +190,7 @@ public class XboxInput {
             switch (current.getIdentifier().getName()) {
               case "0":
                 //A
-                power = -100;
+                power = 100;
                 message = (Integer.toString(power) + "," + Integer
                     .toString(power) + "," + Integer.toString(0));
                 server.setPower(message);
@@ -205,6 +202,12 @@ public class XboxInput {
                     .toString(power) + "," + Integer.toString(0));
                 server.setPower(message);
                 break;
+              case "2":
+                power = -100;
+                message = (Integer.toString(power) + "," + Integer
+                    .toString(power)
+                    + "," + Integer.toString(0));
+                server.setPower(message);
             }
           }
         }
@@ -213,10 +216,5 @@ public class XboxInput {
 
       }
     }
-  }
-
-  public static int calculatePower(float value){
-    double power =  value * -100;
-    return (int) Math.round(power);
   }
 }
