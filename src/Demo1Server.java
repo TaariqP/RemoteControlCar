@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 
-public class UDPServer3 {
+public class Demo1Server {
 
   private byte[] receiveData = new byte[1024];
   private byte[] sendData = new byte[1024];
@@ -10,22 +10,20 @@ public class UDPServer3 {
   private DatagramPacket receivePacket;
   private InetAddress IPAddressController;
   private InetAddress IPAddressClient;
-  private InetAddress IPAddressCar2;
-  private int car1Port = 3322;
+  private int clientPort = 3322;
   private int controllerPort = 5555;
   private String command;
   private boolean controllerConnected = false;
   private boolean carConnected = false;
-  private boolean car2Connected = false;
-  private int car2Port = 3322;
+  private float ping;
 
 
   public static void main(String[] args) {
-    UDPServer3 server = new UDPServer3();
+    Demo1Server server = new Demo1Server();
     server.startRunning();
   }
 
-  public UDPServer3() {
+  public Demo1Server() {
     System.out.println("UDP Server created");
   }
 
@@ -58,32 +56,14 @@ public class UDPServer3 {
       sentence = new String(receivePacket.getData());
       System.out.println("RECEIVED: " + sentence);
       IPAddressClient = receivePacket.getAddress();
-      car1Port = receivePacket.getPort();
-      System.out.println("Now Connected to Car 1: " + IPAddressClient + " at "
-          + "port " + car1Port);
+      clientPort = receivePacket.getPort();
+      System.out.println("Now Connected to Car: " + IPAddressClient + " at "
+          + "port " + clientPort);
       carConnected = true;
 
-      //Receive packet from second car
-      do {
-        receivePacket = new DatagramPacket(receiveData,
-            receiveData.length);
-        clientSocket.receive(receivePacket);
-        IPAddressCar2 = receivePacket.getAddress();
-        System.out.println("Car 1 address: " + IPAddressClient.getHostAddress
-            () + " and Car 2 address: " + IPAddressCar2.getHostAddress());
-      } while (IPAddressClient.getHostAddress().equals(
-          IPAddressCar2.getHostAddress()));
-
-      System.out.println("Car 1 address: " + IPAddressClient.getHostAddress
-          () + " and Car 2 address: " + IPAddressCar2.getHostAddress());
-      sentence = new String(receivePacket.getData());
-      System.out.println("RECEIVED: " + sentence);
-      car2Port = receivePacket.getPort();
-      System.out.println("Now Connected to Car2 :" + IPAddressCar2 + " at "
-          + "port " + car2Port);
-      car2Connected = true;
-
       happySignal();
+
+
 
       Thread listen_controller = new Thread(() -> {
         System.out.println("Listening to controller...");
@@ -105,7 +85,6 @@ public class UDPServer3 {
         e.printStackTrace();
       }
 
-
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -119,7 +98,7 @@ public class UDPServer3 {
       DatagramPacket sendPacket =
           new DatagramPacket(sendData, sendData.length, IPAddressController,
               controllerPort);
-      System.out.println("TEST CONNECTION: " + message);
+      System.out.println("To Controller: " + message);
       controllerSocket.send(sendPacket);
     } catch (IOException e) {
       e.printStackTrace();
@@ -144,6 +123,8 @@ public class UDPServer3 {
     }
   }
 
+
+
   public void setPower(String command) {
     this.command = command;
     sendCommands();
@@ -151,7 +132,33 @@ public class UDPServer3 {
 
   public void keepAlive() throws IOException {
     //receive a packet from the car (should be every 100 ms)
-    //If packet is not received end server
+    //If packet is not received
+  }
+
+  public void listenToController() {
+    try {
+      while (true) {
+
+        //keepAlive();
+
+        //Receive a packet from Xbox controller server
+        receiveData = new byte[1024];
+        receivePacket = new DatagramPacket(receiveData,
+            receiveData.length);
+        controllerSocket.receive(receivePacket);
+        String command = new String(receivePacket.getData());
+        if (command.substring(0, 4).equals("PING")){
+          sendToController("PING");
+        }
+        else{
+        System.out.println("FROM CONTROLLER: " + command);
+        setPower(command);
+        }
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
   }
 
   public void listenToCar() {
@@ -169,40 +176,12 @@ public class UDPServer3 {
           clientSocket.receive(packet);
           str = new String(packet.getData());
           System.out.println("FROM CAR: \"" + str + "\"");
-          if (!(str.length() < 3)) {
-            str = str.substring(0, 4);
-            System.out.println(str);
-          }
+          System.out.println(str.substring(3,10));
+//          ping = Float.valueOf(str.substring(6, 13));
+          sendToController(str.substring(3,10));
         }
         System.out.println("STOP RECEIVED!");
         //stop command received
-        stopCars();
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  public void stopCars() {
-    //Send stop command to both cars
-    System.out.println("STOPPING CARS");
-    command = "0,0,0";
-    sendCommands();
-  }
-
-  public synchronized void listenToController() {
-    try {
-      while (true) {
-
-        //keepAlive();
-
-        //Receive a packet from Xbox controller server
-        receivePacket = new DatagramPacket(receiveData,
-            receiveData.length);
-        controllerSocket.receive(receivePacket);
-        String command = new String(receivePacket.getData());
-        System.out.println("FROM CONTROLLER: " + command);
-        setPower(command);
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -215,16 +194,9 @@ public class UDPServer3 {
       sendData = command.getBytes();
       DatagramPacket sendPacket =
           new DatagramPacket(sendData, sendData.length, IPAddressClient,
-              car1Port);
-      System.out.println("SENDING TO CAR 1: " + command);
+              clientPort);
+      System.out.println("SENDING TO CAR: " + command);
       clientSocket.send(sendPacket);
-
-      //TO CAR2
-      sendPacket = new DatagramPacket(sendData, sendData.length,
-          IPAddressCar2, car2Port);
-      System.out.println("SENDING TO CAR 2: " + command);
-      clientSocket.send(sendPacket);
-
     } catch (IOException e) {
       e.printStackTrace();
     }
