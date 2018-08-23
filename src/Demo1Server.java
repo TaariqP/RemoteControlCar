@@ -16,6 +16,7 @@ public class Demo1Server {
   private boolean controllerConnected = false;
   private boolean carConnected = false;
   private float ping;
+  private double latency;
 
 
   public static void main(String[] args) {
@@ -148,10 +149,9 @@ public class Demo1Server {
         controllerSocket.receive(receivePacket);
         String command = new String(receivePacket.getData());
         if (command.substring(0, 4).equals("PING")){
-          sendToController("PING");
         }
         else{
-        System.out.println("FROM CONTROLLER: " + command);
+//        System.out.println("FROM CONTROLLER: " + command);
         setPower(command);
         }
       }
@@ -175,8 +175,8 @@ public class Demo1Server {
           packet = new DatagramPacket(data, data.length);
           clientSocket.receive(packet);
           str = new String(packet.getData());
-          System.out.println("FROM CAR: \"" + str + "\"");
-          System.out.println(str.substring(3,10));
+//          System.out.println("FROM CAR: \"" + str + "\"");
+//          System.out.println(str.substring(3,10));
 //          ping = Float.valueOf(str.substring(6, 13));
           sendToController(str.substring(3,10));
         }
@@ -195,7 +195,7 @@ public class Demo1Server {
       DatagramPacket sendPacket =
           new DatagramPacket(sendData, sendData.length, IPAddressClient,
               clientPort);
-      System.out.println("SENDING TO CAR: " + command);
+//      System.out.println("SENDING TO CAR: " + command);
       clientSocket.send(sendPacket);
     } catch (IOException e) {
       e.printStackTrace();

@@ -80,6 +80,8 @@ public class UDPServer {
       System.out.println("PING: Controller To Server: " + conToServ);
       this.total = pingTime + conToServ;
       System.out.println("TOTAL LATENCY: " + total);
+      System.out.println();
+      System.out.println();
 
     } catch (IOException e) {
       e.printStackTrace();
@@ -96,7 +98,7 @@ public class UDPServer {
             receiveData.length);
         outputSocket.receive(receivePacket);
         String message = new String(receivePacket.getData());
-//        System.out.println("FROM SERVER: " + message);
+        //        System.out.println("FROM SERVER: " + message);
 //        System.out.println("Ping from Client to Server: " + message.substring
 //            (0, 7));
 //        ping = Double.parseDouble(message.substring(0,7));
@@ -126,18 +128,23 @@ public class UDPServer {
       String pingString = new String
           (receivePacket.getData());
       System.out.println("PING: Client to Server: " + pingString);
-      if (pingString.isEmpty() || pingString.equals("") || !(pingString
-          .length() > 0)) {
-        System.out.println("why is this empty pls");
-        return 0.0;
+      pingString = pingString.trim();
+      if (pingString.length() == 0) {
+        System.out.println("Caught empty string. Ignoring result... "
+            +
+            "-------------------------------------------------------------------------------------------------");
+      } else {
+        pingTime = Double.parseDouble(pingString);
+        pingTime = pingTime / 2;
       }
-      pingTime = Double.parseDouble(pingString);
       now = new Date();
       receiveTime = now.getTime();
     } catch (IOException e) {
       System.out.println("Timeout Error");
     }
 
+
+    //Time in milliseconds
     return (receiveTime - sendTime) * 0.001;
 
   }
