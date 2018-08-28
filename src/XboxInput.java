@@ -1,9 +1,9 @@
 import static javafx.application.Application.launch;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import javafx.application.Application;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.Controller.Type;
@@ -13,14 +13,33 @@ import net.java.games.input.EventQueue;
 
 public class XboxInput {
 
-  private static UDPServer server;
-  private double total;
+  private static ControllerServer server;
+  private boolean firstFive;
 
   public static void main(String[] args) {
+
+    Runtime.getRuntime().addShutdownHook(new Thread() {
+      @Override
+      public void run() {
+        try {
+          System.out
+              .println("Maximum: " + Collections.max(server.getTheTotals()));
+          System.out
+              .println("Minimum: " + Collections.min(server.getTheTotals()));
+          double sum = server.getTheTotals().stream()
+              .mapToDouble(Double::doubleValue).sum();
+          sum = sum / server.getTheTotals().size();
+          System.out.println("Average: " + sum);
+        } catch (Exception exp) {
+
+        }
+      }
+    });
+
     //Two threads - one runs the server, one changes the power for the server
     Thread server_thread_running = new Thread(() -> {
       System.out.println("Server thread now running");
-      server = new UDPServer();
+      server = new ControllerServer();
       server.startRunning();
     });
     Thread controller_thread_running = new Thread(() -> {
@@ -40,12 +59,23 @@ public class XboxInput {
     }
   }
 
-  public double getTotal(){
-    total = server.getTotal();
-    return this.total;
+  public double getTotal() {
+    return server.getTotal();
   }
 
-  public synchronized static String createCommand(int left, int right){
+  public double getCarToServer() {
+    return server.getCarToServer();
+  }
+
+  public double getControllerToServer(){
+    return server.getControllerToServer();
+  }
+
+  public boolean isFirstFive() {
+    return server.isFirstFive();
+  }
+
+  public synchronized static String createCommand(int left, int right) {
     return (Integer.toString(left) + "," + Integer
         .toString(right) + "," + Integer.toString(0));
   }
@@ -146,7 +176,7 @@ public class XboxInput {
                 break;
               case "y":
                 //Left thumbstick - Down
-                System.out.println("Left thumbstick Down by: " + value);
+                //System.out.println("Left thumbstick Down by: " + value);
                 position = "y";
                 leftPower = -50;
                 rightPower = -50;

@@ -5,16 +5,17 @@ import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Series;
 import javafx.stage.Stage;
 
 
 public class LineGraph extends Application {
 
-  private XYChart.Series series;
+  private XYChart.Series series, series2, series3;
   private AtomicInteger tick = new AtomicInteger(0);
   private static LineGraph lineGraph;
 
-  public static LineGraph returnThis(){
+  public static LineGraph returnThis() {
     return lineGraph;
   }
 
@@ -29,21 +30,35 @@ public class LineGraph extends Application {
         new LineChart<Number, Number>(xAxis, yAxis);
     lineChart.setTitle("Latency over Time");
     series = new XYChart.Series();
+    series.setName("Total");
+    series2 = new XYChart.Series();
+    series2.setName("Controller to Server");
+    series3 = new XYChart.Series();
+    series3.setName("Car to Server");
 
-    Scene scene  = new Scene(lineChart,800,600);
+    Scene scene = new Scene(lineChart, 800, 600);
     lineChart.getData().add(series);
+    lineChart.getData().add(series2);
+    lineChart.getData().add(series3);
     primaryStage.setScene(scene);
     primaryStage.show();
-
-
 
     XboxInput xboxInput = new XboxInput();
     Thread updateThread = new Thread(() -> {
       while (true) {
         try {
           Thread.sleep(1000);
-          Platform.runLater(() -> series.getData().add(new XYChart.Data<>
-              (tick.incrementAndGet(), xboxInput.getTotal()) ));
+          //Discarding the first 5 plots because they're not normally
+          // representative
+          if (!(xboxInput.isFirstFive())) {
+            int time = tick.incrementAndGet();
+            Platform.runLater(() -> series.getData().add(new XYChart.Data<>
+                (time, xboxInput.getTotal())));
+            Platform.runLater(() -> series2.getData().add(new XYChart.Data<>
+                (time, xboxInput.getControllerToServer())));
+            Platform.runLater(() -> series3.getData().add(new XYChart.Data<>
+                (time, xboxInput.getCarToServer())));
+        }
         } catch (InterruptedException e) {
           throw new RuntimeException(e);
         }
@@ -53,11 +68,8 @@ public class LineGraph extends Application {
     updateThread.start();
   }
 
-  public void plot(double time){
-    series.getData().add(new XYChart.Data(5, 20));
-  }
-
   public static void main(String[] args) throws Exception {
+    
     launch(args);
   }
 

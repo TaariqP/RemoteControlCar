@@ -12,16 +12,16 @@ public class Demo1Server {
   private InetAddress IPAddressClient;
   private int clientPort = 3322;
   private int controllerPort = 5555;
-  private String command;
+  private String command = "0,0,0";
   private boolean controllerConnected = false;
   private boolean carConnected = false;
-  private float ping;
-  private double latency;
+  private String latency;
 
 
   public static void main(String[] args) {
     Demo1Server server = new Demo1Server();
     server.startRunning();
+
   }
 
   public Demo1Server() {
@@ -30,32 +30,25 @@ public class Demo1Server {
 
   public void startRunning() {
     try {
-      String sentence;
       clientSocket = new DatagramSocket(3322);
       controllerSocket = new DatagramSocket(3323);
-      System.out.println("Trying to connect ...");
+      System.out.println("Waiting for Controller...");
 
-      //Receive a packet from the controllerServer
+      //Receive a packet from the controller
 
-      receivePacket = new DatagramPacket(receiveData,
-          receiveData.length);
-      controllerSocket.receive(receivePacket);
-      sentence = new String(receivePacket.getData());
-      System.out.println("RECEIVED: " + sentence);
+      receiveFromController();
       IPAddressController = receivePacket.getAddress();
       controllerPort = receivePacket.getPort();
       System.out.println("Now Connected to controller: " +
           IPAddressController +
           " at port " + controllerPort);
       controllerConnected = true;
+
       sendToController("Connected to UDP Server");
 
       //Receive a packet from the car
-      receivePacket = new DatagramPacket(receiveData,
-          receiveData.length);
-      clientSocket.receive(receivePacket);
-      sentence = new String(receivePacket.getData());
-      System.out.println("RECEIVED: " + sentence);
+      System.out.println("Waiting for car...");
+      receiveFromCar();
       IPAddressClient = receivePacket.getAddress();
       clientPort = receivePacket.getPort();
       System.out.println("Now Connected to Car: " + IPAddressClient + " at "
@@ -64,24 +57,33 @@ public class Demo1Server {
 
       happySignal();
 
-
+      Thread send = new Thread(() -> {
+        System.out.println("Sending commands...");
+        try {
+          while (true) {
+            Thread.sleep(100);
+            sendCommands();
+          }
+        } catch (IOException | InterruptedException e) {
+          e.printStackTrace();
+        }
+      });
 
       Thread listen_controller = new Thread(() -> {
         System.out.println("Listening to controller...");
-        listenToController();
+        try {
+          listenToController();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       });
 
-      Thread listen_car = new Thread(() -> {
-        System.out.println("Listening to car...");
-        listenToCar();
-      });
-
+      send.start();
       listen_controller.start();
-      listen_car.start();
 
       try {
         listen_controller.join();
-        listen_car.join();
+        send.join();
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
@@ -91,26 +93,56 @@ public class Demo1Server {
     }
   }
 
-  private void sendToController(String message) {
-    //Send a packet to the controller
+  private void sendToController(String message) throws IOException {
+    assert (controllerConnected) : "Controller is no longer connected";
     sendData = new byte[1024];
-    try {
-      sendData = message.getBytes();
-      DatagramPacket sendPacket =
-          new DatagramPacket(sendData, sendData.length, IPAddressController,
-              controllerPort);
-      System.out.println("To Controller: " + message);
-      controllerSocket.send(sendPacket);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    sendData = message.getBytes();
+    DatagramPacket sendPacket =
+        new DatagramPacket(sendData, sendData.length, IPAddressController,
+            controllerPort);
+    controllerSocket.send(sendPacket);
+    System.out.println("SENT TO CONTROLLER: " + message);
+  }
+
+  public String receiveFromController() throws IOException {
+    assert (controllerConnected) : "Controller is no longer connected";
+    receiveData = new byte[1024];
+    receivePacket = new DatagramPacket(receiveData,
+        receiveData.length);
+    controllerSocket.receive(receivePacket);
+    String command = new String(receivePacket.getData());
+    System.out.println("RECEIVED FROM CONTROLLER: " + command);
+    return command;
+  }
+
+  public synchronized void sendCommands() throws IOException {
+    assert (carConnected) : "Car is no longer connected";
+    sendData = new byte[1024];
+    sendData = command.getBytes();
+    DatagramPacket sendPacket =
+        new DatagramPacket(sendData, sendData.length, IPAddressClient,
+            clientPort);
+    System.out.println("SENDING TO CAR: " + command);
+    clientSocket.send(sendPacket);
+  }
+
+  public String receiveFromCar() throws IOException {
+    assert (carConnected) : "Car is no longer connected";
+    receiveData = new byte[1024];
+    receivePacket = new DatagramPacket(receiveData,
+        receiveData.length);
+    clientSocket.receive(receivePacket);
+    String sentence = new String(receivePacket.getData());
+    System.out.println("RECEIVED FROM CAR: " + sentence);
+    return sentence;
   }
 
   public void happySignal() {
+    assert (carConnected) : "Car is no longer connected";
     //Move car to indicate connection
-    System.out.println("Connected to both: sending happy signal");
+    System.out.println("Connected to both - sending happy signal");
     if (controllerPort == 5555) {
-      System.out.println("Successful connection boi");
+      System.out.println("Successful connection");
       try {
         System.out.println("Sending startup signals");
         setPower("50,50,0");
@@ -118,87 +150,33 @@ public class Demo1Server {
         setPower("-50,-50,0");
         Thread.sleep(1000);
         setPower("0,0,0");
-      } catch (InterruptedException e) {
+      } catch (InterruptedException | IOException e) {
         e.printStackTrace();
       }
     }
   }
 
-
-
-  public void setPower(String command) {
+  public void setPower(String command) throws IOException {
     this.command = command;
     sendCommands();
   }
 
-  public void keepAlive() throws IOException {
-    //receive a packet from the car (should be every 100 ms)
-    //If packet is not received
-  }
-
-  public void listenToController() {
-    try {
-      while (true) {
-
-        //keepAlive();
-
-        //Receive a packet from Xbox controller server
-        receiveData = new byte[1024];
-        receivePacket = new DatagramPacket(receiveData,
-            receiveData.length);
-        controllerSocket.receive(receivePacket);
-        String command = new String(receivePacket.getData());
-        if (command.substring(0, 4).equals("PING")){
-        }
-        else{
-//        System.out.println("FROM CONTROLLER: " + command);
-        setPower(command);
-        }
+  public void listenToController() throws IOException {
+    while (true) {
+      assert (controllerConnected) : "Controller is no longer connected";
+      String control = receiveFromController();
+      if (control.substring(0, 4).equals("PING")) {
+        getLatency();
+        sendToController(latency);
+      } else {
+        System.out.println("FROM CONTROLLER: " + control);
+        setPower(control);
       }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-  }
-
-  public void listenToCar() {
-    try {
-      while (true) {
-
-        //keepAlive();
-
-        //Receive a packet from car
-        DatagramPacket packet;
-        byte[] data = new byte[1024];
-        String str = "";
-        while (!str.equals("STOP")) {
-          packet = new DatagramPacket(data, data.length);
-          clientSocket.receive(packet);
-          str = new String(packet.getData());
-//          System.out.println("FROM CAR: \"" + str + "\"");
-//          System.out.println(str.substring(3,10));
-//          ping = Float.valueOf(str.substring(6, 13));
-          sendToController(str.substring(3,10));
-        }
-        System.out.println("STOP RECEIVED!");
-        //stop command received
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
     }
   }
 
-  public void sendCommands() {
-    //Send command via client socket
-    try {
-      sendData = command.getBytes();
-      DatagramPacket sendPacket =
-          new DatagramPacket(sendData, sendData.length, IPAddressClient,
-              clientPort);
-//      System.out.println("SENDING TO CAR: " + command);
-      clientSocket.send(sendPacket);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public void getLatency() throws IOException {
+    String str = receiveFromCar();
+    latency = str.substring(3, 10);
   }
 }
