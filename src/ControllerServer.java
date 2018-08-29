@@ -3,14 +3,13 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javafx.application.Application;
 
 public class ControllerServer {
 
-  private String serverAddress = "192.168.1.21";
+  private String serverAddress = "172.30.3.5";
   private byte[] receiveData = new byte[1024];
   private byte[] sendData;
   private DatagramSocket outputSocket;
@@ -21,6 +20,8 @@ public class ControllerServer {
   private boolean connected = false;
   private static double total;
   private List<Double> theTotals;
+  private List<Double> carToServPings;
+  private List<Double> contrToServPings;
   private int firstFiveCounter = 0;
   private double carToServer;
   private double conToServer;
@@ -40,6 +41,8 @@ public class ControllerServer {
   public ControllerServer() {
     System.out.println("UDP Controller Server Created");
     theTotals = new ArrayList();
+    contrToServPings = new ArrayList<>();
+    carToServPings = new ArrayList<>();
   }
 
   public static double getTotal() {
@@ -92,6 +95,8 @@ public class ControllerServer {
     System.out.println("TOTAL LATENCY: " + total);
     if (!isFirstFive()) {
       theTotals.add(total);
+      carToServPings.add(carToServer);
+      contrToServPings.add(conToServer);
     }
     firstFiveCounter++;
   }
@@ -163,5 +168,13 @@ public class ControllerServer {
 
   public double getControllerToServer() {
     return conToServer;
+  }
+
+  public List<Double> getCarToServPings() {
+    return carToServPings;
+  }
+
+  public List<Double> getContrToServPings() {
+    return contrToServPings;
   }
 }

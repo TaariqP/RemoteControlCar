@@ -5,7 +5,6 @@ import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.chart.XYChart.Series;
 import javafx.stage.Stage;
 
 
@@ -58,7 +57,7 @@ public class LineGraph extends Application {
                 (time, xboxInput.getControllerToServer())));
             Platform.runLater(() -> series3.getData().add(new XYChart.Data<>
                 (time, xboxInput.getCarToServer())));
-        }
+          }
         } catch (InterruptedException e) {
           throw new RuntimeException(e);
         }
@@ -69,7 +68,7 @@ public class LineGraph extends Application {
   }
 
   public static void main(String[] args) throws Exception {
-    
+
     launch(args);
   }
 

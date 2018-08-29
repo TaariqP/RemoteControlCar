@@ -21,7 +21,6 @@ public class Demo1Server {
   public static void main(String[] args) {
     Demo1Server server = new Demo1Server();
     server.startRunning();
-
   }
 
   public Demo1Server() {

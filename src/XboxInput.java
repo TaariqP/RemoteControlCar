@@ -1,5 +1,3 @@
-import static javafx.application.Application.launch;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -14,25 +12,36 @@ import net.java.games.input.EventQueue;
 public class XboxInput {
 
   private static ControllerServer server;
-  private boolean firstFive;
 
   public static void main(String[] args) {
 
+    //Runs when the program is safely exited
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
         try {
-          System.out
-              .println("Maximum: " + Collections.max(server.getTheTotals()));
-          System.out
-              .println("Minimum: " + Collections.min(server.getTheTotals()));
-          double sum = server.getTheTotals().stream()
-              .mapToDouble(Double::doubleValue).sum();
-          sum = sum / server.getTheTotals().size();
-          System.out.println("Average: " + sum);
+          System.out.println("Average ping overall: ");
+          outputAverage(server.getTheTotals());
+          System.out.println("Average ping for Car to Server ");
+          outputAverage(server.getCarToServPings());
+          System.out.println("Average ping for controller to server");
+          outputAverage(server.getContrToServPings());
         } catch (Exception exp) {
 
         }
+      }
+
+      //Outputs the average ping
+      private void outputAverage(List<Double> pings) {
+        System.out
+            .println("Maximum: " + Collections.max(pings));
+        System.out
+            .println("Minimum: " + Collections.min(pings));
+        double sum = pings.stream()
+            .mapToDouble(Double::doubleValue).sum();
+        sum = sum / pings.size();
+        System.out.println("Average: " + sum);
+        System.out.println("-----------------------------------------------");
       }
     });
 
