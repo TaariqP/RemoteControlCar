@@ -9,7 +9,7 @@ import javafx.application.Application;
 
 public class ControllerServer {
 
-  private String serverAddress = "172.30.3.5";
+  private String serverAddress = "192.168.1.21";
   private byte[] receiveData = new byte[1024];
   private byte[] sendData;
   private DatagramSocket outputSocket;
@@ -63,6 +63,7 @@ public class ControllerServer {
         checkConnection(sentence);
       }
       System.out.println("Connected to the Server: Confirmed");
+
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -77,6 +78,7 @@ public class ControllerServer {
     //Send commands to the Server to send to the Car
     try {
       sendToServer(command);
+      //Check server type to run the following command
       calculatePing();
     } catch (IOException e) {
       e.printStackTrace();
@@ -131,7 +133,6 @@ public class ControllerServer {
 
   }
 
-
   public void sendToServer(String message) throws IOException {
     sendData = new byte[1024];
     sendData = message.getBytes();
@@ -141,7 +142,6 @@ public class ControllerServer {
     outputSocket.send(sendPacket);
     System.out.println("SENT: " + message);
   }
-
 
   public String receiveFromServer() throws IOException {
     String message;
