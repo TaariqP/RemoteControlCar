@@ -25,28 +25,13 @@ public class ControllerServer {
   private int firstFiveCounter = 0;
   private double carToServer;
   private double conToServer;
-
-
-  public boolean isFirstFive() {
-    if (firstFiveCounter < 8) {
-      return true;
-    }
-    return false;
-  }
-
-  public List<Double> getTheTotals() {
-    return theTotals;
-  }
+  private String type;
 
   public ControllerServer() {
     System.out.println("UDP Controller Server Created");
     theTotals = new ArrayList();
     contrToServPings = new ArrayList<>();
     carToServPings = new ArrayList<>();
-  }
-
-  public static double getTotal() {
-    return total;
   }
 
   public void startRunning() {
@@ -57,10 +42,9 @@ public class ControllerServer {
     //Connect to the Server
     try {
       outputSocket = new DatagramSocket(5555);
-      String sentence = "Connected to Xbox Controller";
       IPAddress = InetAddress.getByName(serverAddress);
       while (!connected) {
-        checkConnection(sentence);
+        checkConnection(type);
       }
       System.out.println("Connected to the Server: Confirmed");
 
@@ -74,7 +58,11 @@ public class ControllerServer {
     sendCommands();
   }
 
-  public void sendCommands() {
+  public void setType(String type){
+    this.type = type;
+  }
+
+  private void sendCommands() {
     //Send commands to the Server to send to the Car
     try {
       sendToServer(command);
@@ -103,7 +91,7 @@ public class ControllerServer {
     firstFiveCounter++;
   }
 
-  public double ping() throws IOException {
+  private double ping() throws IOException {
     Date now = new Date();
     long sendTime = now.getTime();
     long receiveTime = 0;
@@ -177,4 +165,21 @@ public class ControllerServer {
   public List<Double> getContrToServPings() {
     return contrToServPings;
   }
+
+
+  public boolean isFirstFive() {
+    if (firstFiveCounter < 8) {
+      return true;
+    }
+    return false;
+  }
+
+  public static double getTotal() {
+    return total;
+  }
+
+  public List<Double> getTheTotals() {
+    return theTotals;
+  }
+
 }

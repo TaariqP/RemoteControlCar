@@ -2,6 +2,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import javafx.application.Application;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.Controller.Type;
@@ -12,6 +13,8 @@ import net.java.games.input.EventQueue;
 public class XboxInput {
 
   private static ControllerServer server;
+  private static Thread server_thread_running;
+
 
   public static void main(String[] args) {
 
@@ -27,10 +30,9 @@ public class XboxInput {
           System.out.println("Average ping for controller to server");
           outputAverage(server.getContrToServPings());
         } catch (Exception exp) {
-
+          System.out.println("Exception caught");
         }
       }
-
       //Outputs the average ping
       private void outputAverage(List<Double> pings) {
         System.out
@@ -46,22 +48,20 @@ public class XboxInput {
     });
 
     //Two threads - one runs the server, one changes the power for the server
-    Thread server_thread_running = new Thread(() -> {
+    server_thread_running = new Thread(() -> {
       System.out.println("Server thread now running");
       server = new ControllerServer();
-      server.startRunning();
     });
     Thread controller_thread_running = new Thread(() -> {
       System.out.println("Controller thread now running");
       runController();
     });
 
-    server_thread_running.start();
+//    server_thread_running.start();
     controller_thread_running.start();
 
     try {
       server_thread_running.join();
-
       controller_thread_running.join();
     } catch (InterruptedException e) {
       e.printStackTrace();
@@ -239,6 +239,29 @@ public class XboxInput {
                 //X
                 power = -100;
                 server.setPower(createCommand(power, power));
+                break;
+              case "7":
+                //Start
+                server_thread_running.start();
+                try {
+                  server_thread_running.sleep(1000);
+                } catch (InterruptedException e) {
+                  e.printStackTrace();
+                }
+                server.setType("1");
+                server.startRunning();
+                break;
+              case "6":
+                //Back
+                server_thread_running.start();
+                try {
+                  server_thread_running.sleep(1000);
+                } catch (InterruptedException e) {
+                  e.printStackTrace();
+                }
+                server.setType("2");
+                server.startRunning();
+                break;
             }
           }
         }

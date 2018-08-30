@@ -85,4 +85,6 @@ public abstract class DemoServer {
     this.command = command;
     sendCommands();
   }
+
+  public abstract void startRunning() throws IOException;
 }
