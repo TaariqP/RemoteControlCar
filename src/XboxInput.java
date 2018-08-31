@@ -12,10 +12,9 @@ import net.java.games.input.EventQueue;
 public class XboxInput {
 
   private static ControllerServer server;
-  private static Thread server_thread_running;
-
 
   public static void main(String[] args) {
+
     //Runs when the program is safely exited
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
@@ -28,14 +27,13 @@ public class XboxInput {
           System.out.println("Average ping for controller to server");
           outputAverage(server.getContrToServPings());
         } catch (Exception exp) {
-          System.out.println("Exception caught");
+
         }
       }
 
       //Outputs the average ping
       private void outputAverage(List<Double> pings) {
         System.out.println("-----------------------------------------------");
-
         System.out
             .println("Maximum: " + Collections.max(pings));
         System.out
@@ -49,20 +47,22 @@ public class XboxInput {
     });
 
     //Two threads - one runs the server, one changes the power for the server
-    server_thread_running = new Thread(() -> {
+    Thread server_thread_running = new Thread(() -> {
       System.out.println("Server thread now running");
       server = new ControllerServer();
+      server.startRunning();
     });
     Thread controller_thread_running = new Thread(() -> {
       System.out.println("Controller thread now running");
       runController();
     });
 
-//    server_thread_running.start();
+    server_thread_running.start();
     controller_thread_running.start();
 
     try {
       server_thread_running.join();
+
       controller_thread_running.join();
     } catch (InterruptedException e) {
       e.printStackTrace();
@@ -77,7 +77,7 @@ public class XboxInput {
     return server.getCarToServer();
   }
 
-  public double getControllerToServer() {
+  public double getControllerToServer(){
     return server.getControllerToServer();
   }
 
@@ -118,6 +118,25 @@ public class XboxInput {
           + "Digital? : " +
           ((component.isAnalog()) ? " Analogue" : "Absolute"));
     }
+
+    /*
+    List of Button Mappings
+    A = Button 0
+    B = Button 1
+    X = Button 2
+    Y = Button 3
+    LB = Button 4
+    RB = Button 5
+    Back = Button 6
+    Start = Button 7
+    Left thumb stick button = Button 8
+    Right thumb stick button = Button 9
+    D-pad Up-Down-Left-RIGHT = Hat switch values Up-Down-Left-Right
+    LT = Z-Axis + X AXIS? ----- Goes from -1.52 to 0.996
+    RT = Z-Axis + X Rotation? ---- GOES FROM 0 to -0.996 (increase)
+    Left thumb stick = ROTATION(Left = X Rotation 1.0, Up = Y Rotation -1.0)
+    Right thumb stick = AXIS
+     */
 
     Event event;
     float value;
@@ -221,29 +240,6 @@ public class XboxInput {
                 //X
                 power = -100;
                 server.setPower(createCommand(power, power));
-                break;
-              case "7":
-                //Start
-                server_thread_running.start();
-                try {
-                  server_thread_running.sleep(1000);
-                } catch (InterruptedException e) {
-                  e.printStackTrace();
-                }
-                server.setType("1");
-                server.startRunning();
-                break;
-              case "6":
-                //Back
-                server_thread_running.start();
-                try {
-                  server_thread_running.sleep(1000);
-                } catch (InterruptedException e) {
-                  e.printStackTrace();
-                }
-                server.setType("2");
-                server.startRunning();
-                break;
             }
           }
         }
