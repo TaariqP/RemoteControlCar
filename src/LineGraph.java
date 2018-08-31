@@ -49,7 +49,7 @@ public class LineGraph extends Application {
           Thread.sleep(1000);
           //Discarding the first 5 plots because they're not normally
           // representative
-          if (!(xboxInput.isFirstFive())) {
+          if (!(xboxInput.toIgnore())) {
             int time = tick.incrementAndGet();
             Platform.runLater(() -> series.getData().add(new XYChart.Data<>
                 (time, xboxInput.getTotal())));

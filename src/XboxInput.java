@@ -2,7 +2,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import javafx.application.Application;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.Controller.Type;
@@ -17,7 +16,6 @@ public class XboxInput {
 
 
   public static void main(String[] args) {
-
     //Runs when the program is safely exited
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
@@ -33,8 +31,11 @@ public class XboxInput {
           System.out.println("Exception caught");
         }
       }
+
       //Outputs the average ping
       private void outputAverage(List<Double> pings) {
+        System.out.println("-----------------------------------------------");
+
         System.out
             .println("Maximum: " + Collections.max(pings));
         System.out
@@ -76,12 +77,12 @@ public class XboxInput {
     return server.getCarToServer();
   }
 
-  public double getControllerToServer(){
+  public double getControllerToServer() {
     return server.getControllerToServer();
   }
 
-  public boolean isFirstFive() {
-    return server.isFirstFive();
+  public boolean toIgnore() {
+    return server.toIgnore();
   }
 
   public synchronized static String createCommand(int left, int right) {
@@ -117,25 +118,6 @@ public class XboxInput {
           + "Digital? : " +
           ((component.isAnalog()) ? " Analogue" : "Absolute"));
     }
-
-    /*
-    List of Button Mappings
-    A = Button 0
-    B = Button 1
-    X = Button 2
-    Y = Button 3
-    LB = Button 4
-    RB = Button 5
-    Back = Button 6
-    Start = Button 7
-    Left thumb stick button = Button 8
-    Right thumb stick button = Button 9
-    D-pad Up-Down-Left-RIGHT = Hat switch values Up-Down-Left-Right
-    LT = Z-Axis + X AXIS? ----- Goes from -1.52 to 0.996
-    RT = Z-Axis + X Rotation? ---- GOES FROM 0 to -0.996 (increase)
-    Left thumb stick = ROTATION(Left = X Rotation 1.0, Up = Y Rotation -1.0)
-    Right thumb stick = AXIS
-     */
 
     Event event;
     float value;
@@ -268,5 +250,4 @@ public class XboxInput {
       }
     }
   }
-
 }

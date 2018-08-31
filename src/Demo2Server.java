@@ -9,7 +9,7 @@ public class Demo2Server extends DemoServer {
   private int car2Port;
   private boolean car1Connected = false;
   private boolean car2Connected = false;
-
+  private String latency;
 
   public static void main(String[] args) {
     Demo2Server server = new Demo2Server();
@@ -63,16 +63,41 @@ public class Demo2Server extends DemoServer {
       //Send startup signals
       startupSignals();
 
+      Thread send = new Thread(() -> {
+        System.out.println("Sending commands...");
+        try {
+          while (true) {
+            Thread.sleep(200);
+            sendCommands();
+          }
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        } finally {
+          closeConnections();
+        }
+      });
+
       Thread listen_controller = new Thread(() -> {
         System.out.println("Listening to controller...");
-        listenToController();
+        try {
+          listenToController();
+        } catch (IOException e) {
+          e.printStackTrace();
+        } finally {
+          closeConnections();
+        }
       });
 
       Thread listen_car = new Thread(() -> {
         System.out.println("Listening to car...");
-        listenToCar();
+        try {
+          listenToCar();
+        } catch (IOException e) {
+
+        }
       });
 
+      send.start();
       listen_controller.start();
       listen_car.start();
 
@@ -88,27 +113,23 @@ public class Demo2Server extends DemoServer {
   }
 
 
-  public void listenToCar() {
-    try {
-      while (true) {
-        //Receive a packet from car
-        DatagramPacket packet;
-        byte[] data = new byte[1024];
-        String str = "";
-        while (!str.equals("STOP")) {
-          packet = new DatagramPacket(data, data.length);
-          carSocket.receive(packet);
-          str = new String(packet.getData());
-          System.out.println("FROM CAR: \"" + str + "\"");
-          if (!(str.length() < 3)) {
-            str = str.substring(0, 4);
-          }
+  public void listenToCar() throws IOException {
+    while (true) {
+      //Receive a packet from car
+      DatagramPacket packet;
+      byte[] data = new byte[1024];
+      String str = "";
+      while (!str.equals("STOP")) {
+        packet = new DatagramPacket(data, data.length);
+        carSocket.receive(packet);
+        str = new String(packet.getData());
+        System.out.println("FROM CAR: " + str);
+        if (!(str.length() < 3)) {
+          str = str.substring(0, 4);
         }
-        System.out.println(str);
-        stopCars();
       }
-    } catch (IOException e) {
-      e.printStackTrace();
+      System.out.println(str);
+      stopCars();
     }
   }
 
@@ -119,21 +140,18 @@ public class Demo2Server extends DemoServer {
   }
 
 
-  public void listenToController() {
-    try {
-      while (true) {
-        //Receive a packet from Xbox controller server
-        String command = receiveFromController();
-        if (command.substring(0, 4).equals("PING")) {
-          //Demo 2 does not need to produce a graph of latency
-          sendToController("0.000");
-        } else {
-          System.out.println("FROM CONTROLLER: " + command);
-          setPower(command);
-        }
+  public void listenToController() throws IOException {
+    while (true) {
+      //Receive a packet from Xbox controller server
+      String command = receiveFromController();
+      if (command.substring(0, 4).equals("PING")) {
+        //Demo 2 does not need to produce a graph of latency
+        getLatency();
+        sendToController(latency);
+      } else {
+        System.out.println("FROM CONTROLLER: " + command);
+        setPower(command);
       }
-    } catch (IOException e) {
-      e.printStackTrace();
     }
   }
 
@@ -162,5 +180,10 @@ public class Demo2Server extends DemoServer {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public void getLatency() throws IOException {
+    String str = receiveFromCar();
+    latency = str.substring(3, 10);
   }
 }

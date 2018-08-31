@@ -51,6 +51,8 @@ public class Demo1Server extends DemoServer {
           }
         } catch (IOException | InterruptedException e) {
           e.printStackTrace();
+        } finally {
+          closeConnections();
         }
       });
 
@@ -60,6 +62,8 @@ public class Demo1Server extends DemoServer {
           listenToController();
         } catch (IOException e) {
           e.printStackTrace();
+        } finally {
+          closeConnections();
         }
       });
 
@@ -77,6 +81,8 @@ public class Demo1Server extends DemoServer {
       e.printStackTrace();
     }
   }
+
+
 
   public void listenToController() throws IOException {
     while (true) {

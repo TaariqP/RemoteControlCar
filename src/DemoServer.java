@@ -5,7 +5,7 @@ import java.net.InetAddress;
 
 public abstract class DemoServer {
 
-  byte[] receiveData = new byte[1024];
+  private byte[] receiveData = new byte[1024];
   byte[] sendData = new byte[1024];
   DatagramSocket controllerSocket;
   DatagramSocket carSocket;
@@ -20,7 +20,7 @@ public abstract class DemoServer {
   String command = "0,0,0";
 
 
-  protected void sendToController(String message) throws IOException {
+  void sendToController(String message) throws IOException {
     assert (controllerConnected) : "Controller is no longer connected";
     sendData = new byte[1024];
     sendData = message.getBytes();
@@ -31,7 +31,7 @@ public abstract class DemoServer {
     System.out.println("SENT TO CONTROLLER: " + message);
   }
 
-  protected String receiveFromController() throws IOException {
+  String receiveFromController() throws IOException {
     receiveData = new byte[1024];
     receivePacket = new DatagramPacket(receiveData,
         receiveData.length);
@@ -52,7 +52,7 @@ public abstract class DemoServer {
     carSocket.send(sendPacket);
   }
 
-  protected String receiveFromCar() throws IOException {
+  String receiveFromCar() throws IOException {
     receiveData = new byte[1024];
     receivePacket = new DatagramPacket(receiveData,
         receiveData.length);
@@ -62,7 +62,7 @@ public abstract class DemoServer {
     return sentence;
   }
 
-  protected void startupSignals() {
+  void startupSignals() {
     assert (carConnected) : "Car is no longer connected";
     //Move car to indicate connection
     System.out.println("Connected to both - sending happy signal");
@@ -81,9 +81,14 @@ public abstract class DemoServer {
     }
   }
 
-  protected void setPower(String command) throws IOException {
+  void setPower(String command) throws IOException {
     this.command = command;
     sendCommands();
+  }
+
+  void closeConnections() {
+    carSocket.close();
+    controllerSocket.close();
   }
 
   public abstract void startRunning() throws IOException;

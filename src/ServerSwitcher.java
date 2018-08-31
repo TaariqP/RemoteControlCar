@@ -1,8 +1,5 @@
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
 
 public class ServerSwitcher extends DemoServer {
 
@@ -36,7 +33,7 @@ public class ServerSwitcher extends DemoServer {
       server = new Demo2Server();
     }
 
-    sendToController("boi wassup");
+    sendToController("Switching Server");
     controllerSocket.close();
     server.startRunning();
 

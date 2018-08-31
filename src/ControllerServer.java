@@ -83,7 +83,7 @@ public class ControllerServer {
     System.out.println("PING: Car To Server: " + carToServer);
     total = total / 2;
     System.out.println("TOTAL LATENCY: " + total);
-    if (!isFirstFive()) {
+    if (!toIgnore()) {
       theTotals.add(total);
       carToServPings.add(carToServer);
       contrToServPings.add(conToServer);
@@ -167,7 +167,7 @@ public class ControllerServer {
   }
 
 
-  public boolean isFirstFive() {
+  public boolean toIgnore() {
     if (firstFiveCounter < 8) {
       return true;
     }
