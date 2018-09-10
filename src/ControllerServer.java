@@ -12,7 +12,7 @@ import javafx.application.Application;
 
 public class ControllerServer {
 
-  private String serverAddress;
+  private String serverAddress = "127.0.0.1";
   private byte[] receiveData = new byte[1024];
   private byte[] sendData;
   private DatagramSocket outputSocket;
