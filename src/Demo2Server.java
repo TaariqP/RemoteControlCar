@@ -17,7 +17,7 @@ public class Demo2Server extends DemoServer {
   }
 
   public Demo2Server() {
-    System.out.println("Demo 2 Server created");
+    System.out.println("Demo 2 Legacy.Server created");
   }
 
   public void startRunning() {
@@ -35,7 +35,7 @@ public class Demo2Server extends DemoServer {
           " at port " + controllerPort);
       controllerConnected = true;
 
-      sendToController("Connected to UDP Server");
+      sendToController("Connected to UDP Legacy.Server");
 
       System.out.println("Waiting for the first car...");
       //Receive a packet from the first car

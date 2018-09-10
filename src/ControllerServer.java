@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -9,7 +12,7 @@ import javafx.application.Application;
 
 public class ControllerServer {
 
-  private String serverAddress = "127.0.0.1";
+  private String serverAddress;
   private byte[] receiveData = new byte[1024];
   private byte[] sendData;
   private DatagramSocket outputSocket;
@@ -22,13 +25,13 @@ public class ControllerServer {
   private List<Double> theTotals;
   private List<Double> carToServPings;
   private List<Double> contrToServPings;
-  private int firstFiveCounter = 0;
+  private int ignoreCounter = 0;
   private double carToServer;
   private double conToServer;
 
 
   public boolean toIgnore() {
-    if (firstFiveCounter < 8) {
+    if (ignoreCounter < 8) {
       return true;
     }
     return false;
@@ -39,7 +42,7 @@ public class ControllerServer {
   }
 
   public ControllerServer() {
-    System.out.println("UDP Controller Server Created");
+    System.out.println("UDP Controller Legacy.Server Created");
     theTotals = new ArrayList();
     contrToServPings = new ArrayList<>();
     carToServPings = new ArrayList<>();
@@ -49,12 +52,24 @@ public class ControllerServer {
     return total;
   }
 
+  public void getIPAddress() throws IOException {
+    BufferedReader bufferedReader = null;
+    try {
+      bufferedReader = new BufferedReader(new FileReader("ip"
+          + ".txt"));
+      this.serverAddress = bufferedReader.readLine();
+    } finally {
+      assert bufferedReader != null;
+      bufferedReader.close();
+    }
+  }
+
   public void startRunning() {
 
     //Create the graph application in a window
     new Thread(() -> Application.launch(LineGraph.class)).start();
 
-    //Connect to the Server
+    //Connect to the Legacy.Server
     try {
       outputSocket = new DatagramSocket(5555);
       String sentence = "Connected to Xbox Controller";
@@ -62,7 +77,7 @@ public class ControllerServer {
       while (!connected) {
         checkConnection(sentence);
       }
-      System.out.println("Connected to the Server: Confirmed");
+      System.out.println("Connected to the Legacy.Server: Confirmed");
 
     } catch (IOException e) {
       e.printStackTrace();
@@ -75,7 +90,7 @@ public class ControllerServer {
   }
 
   public void sendCommands() {
-    //Send commands to the Server to send to the Car
+    //Send commands to the Legacy.Server to send to the Car
     try {
       sendToServer(command);
       //Check server type to run the following command
@@ -90,9 +105,9 @@ public class ControllerServer {
     total = carToServer + conToServer;
     //Edge to Edge
     conToServer = conToServer / 2;
-    System.out.println("PING: Controller To Server: " + conToServer);
+    System.out.println("PING: Controller To Legacy.Server: " + conToServer);
     carToServer = carToServer / 2;
-    System.out.println("PING: Car To Server: " + carToServer);
+    System.out.println("PING: Car To Legacy.Server: " + carToServer);
     total = total / 2;
     System.out.println("TOTAL LATENCY: " + total);
     if (!toIgnore()) {
@@ -100,7 +115,7 @@ public class ControllerServer {
       carToServPings.add(carToServer);
       contrToServPings.add(conToServer);
     }
-    firstFiveCounter++;
+    ignoreCounter++;
   }
 
   public double ping() throws IOException {

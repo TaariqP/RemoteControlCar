@@ -31,9 +31,9 @@ public class LineGraph extends Application {
     series = new XYChart.Series();
     series.setName("Total");
     series2 = new XYChart.Series();
-    series2.setName("Controller to Server");
+    series2.setName("Controller to Legacy.Server");
     series3 = new XYChart.Series();
-    series3.setName("Car to Server");
+    series3.setName("Car to Legacy.Server");
 
     Scene scene = new Scene(lineChart, 800, 600);
     lineChart.getData().add(series);

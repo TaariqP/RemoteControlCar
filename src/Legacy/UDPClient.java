@@ -1,3 +1,5 @@
+package Legacy;
+
 import java.io.*;
 import java.net.*;
 
@@ -23,7 +25,7 @@ public class UDPClient {
     try {
       clientSocket = new DatagramSocket();
       InetAddress IPAddress = InetAddress.getByName("localhost");
-      String sentence = "You are now connected to UDPClient";
+      String sentence = "You are now connected to Legacy.UDPClient";
       sendData = sentence.getBytes();
       DatagramPacket sendPacket = new DatagramPacket(sendData,
           sendData.length,

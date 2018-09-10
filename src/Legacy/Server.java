@@ -1,3 +1,5 @@
+package Legacy;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.EOFException;
@@ -32,7 +34,7 @@ public class Server extends JFrame {
 
   public Server() {
     //Set GUI for input
-//    super("Server");
+//    super("Legacy.Server");
 //    JTextField left0 = new JTextField();
 //    JTextField right0 = new JTextField();
 //    JTextField left1 = new JTextField();

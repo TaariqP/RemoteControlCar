@@ -33,7 +33,7 @@ public class ServerSwitcher extends DemoServer {
       server = new Demo2Server();
     }
 
-    sendToController("Switching Server");
+    sendToController("Switching Legacy.Server");
     controllerSocket.close();
     server.startRunning();
 
@@ -41,7 +41,7 @@ public class ServerSwitcher extends DemoServer {
   }
 
   public ServerSwitcher() {
-    System.out.println("Server Switcher started");
+    System.out.println("Legacy.Server Switcher started");
   }
 
 }

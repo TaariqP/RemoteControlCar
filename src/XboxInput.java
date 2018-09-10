@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +23,7 @@ public class XboxInput {
         try {
           System.out.println("Average ping overall: ");
           outputAverage(server.getTheTotals());
-          System.out.println("Average ping for Car to Server ");
+          System.out.println("Average ping for Car to Legacy.Server ");
           outputAverage(server.getCarToServPings());
           System.out.println("Average ping for controller to server");
           outputAverage(server.getContrToServPings());
@@ -48,8 +49,13 @@ public class XboxInput {
 
     //Two threads - one runs the server, one changes the power for the server
     Thread server_thread_running = new Thread(() -> {
-      System.out.println("Server thread now running");
+      System.out.println("Legacy.Server thread now running");
       server = new ControllerServer();
+      try {
+        server.getIPAddress();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
       server.startRunning();
     });
     Thread controller_thread_running = new Thread(() -> {
