@@ -17,7 +17,7 @@ public class Demo2Server extends DemoServer {
   }
 
   public Demo2Server() {
-    System.out.println("Demo 2 Legacy.Server created");
+    System.out.println("Demo 2 Server created");
   }
 
   public void startRunning() {
@@ -137,6 +137,7 @@ public class Demo2Server extends DemoServer {
     }
   }
 
+  //Sends a message to a specific car
   public void sendToCar(InetAddress IPAddress, int carPort) throws IOException {
     sendData = new byte[1024];
     sendData = command.getBytes();

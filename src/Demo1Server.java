@@ -11,7 +11,7 @@ public class Demo1Server extends DemoServer {
   }
 
   public Demo1Server() {
-    System.out.println("Demo Legacy.Server 1 created");
+    System.out.println("Demo Server 1 created");
   }
 
   public void startRunning() {
@@ -40,8 +40,11 @@ public class Demo1Server extends DemoServer {
           + "port " + carPort);
       carConnected = true;
 
+      //Send the startup signal
       startupSignals();
 
+
+      //Thread to send commands to the car continuously
       Thread send = new Thread(() -> {
         System.out.println("Sending commands...");
         try {
@@ -56,6 +59,7 @@ public class Demo1Server extends DemoServer {
         }
       });
 
+      //Thread to listen to the controller continuously
       Thread listen_controller = new Thread(() -> {
         System.out.println("Listening to controller...");
         try {
@@ -70,6 +74,7 @@ public class Demo1Server extends DemoServer {
       send.start();
       listen_controller.start();
 
+
       try {
         listen_controller.join();
         send.join();
@@ -83,7 +88,7 @@ public class Demo1Server extends DemoServer {
   }
 
 
-
+  //Receives messages from the controller continuously.
   public void listenToController() throws IOException {
     while (true) {
       assert (controllerConnected) : "Controller is no longer connected";
@@ -98,6 +103,7 @@ public class Demo1Server extends DemoServer {
     }
   }
 
+  //Gets the latency from the car.
   public void getLatency() throws IOException {
     String str = receiveFromCar();
     latency = str.substring(3, 10);

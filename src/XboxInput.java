@@ -28,7 +28,7 @@ public class XboxInput {
           System.out.println("Average ping for controller to server");
           outputAverage(server.getContrToServPings());
         } catch (Exception exp) {
-
+          System.out.println("Exception: " + exp);
         }
       }
 
@@ -39,6 +39,7 @@ public class XboxInput {
             .println("Maximum: " + Collections.max(pings));
         System.out
             .println("Minimum: " + Collections.min(pings));
+        //Calculates average
         double sum = pings.stream()
             .mapToDouble(Double::doubleValue).sum();
         sum = sum / pings.size();
@@ -49,7 +50,7 @@ public class XboxInput {
 
     //Two threads - one runs the server, one changes the power for the server
     Thread server_thread_running = new Thread(() -> {
-      System.out.println("Legacy.Server thread now running");
+      System.out.println("Server thread now running");
       server = new ControllerServer();
       try {
         server.getIPAddress();
@@ -63,59 +64,64 @@ public class XboxInput {
       runController();
     });
 
+    //Start the threads
     server_thread_running.start();
     controller_thread_running.start();
 
+    //Join the threads
     try {
       server_thread_running.join();
-
       controller_thread_running.join();
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
   }
 
+  //Returns the total latency
   public double getTotal() {
     return server.getTotal();
   }
 
+  //Returns the latency between car and server
   public double getCarToServer() {
     return server.getCarToServer();
   }
 
-  public double getControllerToServer(){
+  //Returns the latency between controller and server
+  public double getControllerToServer() {
     return server.getControllerToServer();
   }
 
+  //Ignores first few anomalous results
   public boolean toIgnore() {
     return server.toIgnore();
   }
 
+  //Creates the command in String form
   public synchronized static String createCommand(int left, int right) {
     return (Integer.toString(left) + "," + Integer
         .toString(right) + "," + Integer.toString(0));
   }
 
   public synchronized static void runController() {
-
+    //Names of all controllers
     List<Controller> controllers = Arrays
         .stream(ControllerEnvironment.getDefaultEnvironment().getControllers())
         .filter(controller -> controller.getType().equals(Type.GAMEPAD))
         .collect(Collectors.toList());
-    //Names of all controllers
 
+    //Ensure a controller is connected
     assert (controllers.size() > 0) : "No controllers found";
 
+    //Prints the controller names and types
     for (Controller controller : controllers) {
       System.out.println(controller.getName() + ", " + controller.getType());
     }
-    //Main xbox controller
-    Controller controller = controllers.get(0);
-    if (controller == null) {
-      System.out.println("Could not find controller");
-    }
 
+    //Gets the first controller
+    Controller controller = controllers.get(0);
     //Display gamepad components
+    assert controller != null;
     Component[] components = controller.getComponents();
     for (Component component : components) {
       System.out.println("Name: " + component.getName() + ", Identifier: "
@@ -150,6 +156,7 @@ public class XboxInput {
     StringBuilder debug;
     String position = "";
 
+    //Continuously polls and waits for new events
     while (true) {
       controller.poll();
       debug = new StringBuilder();
@@ -160,6 +167,7 @@ public class XboxInput {
         current = event.getComponent();
         value = event.getValue();
 
+        //Neutral position (no button presses/movement)
         if ((value < 0.3) && (value > -0.3) && position.equals(current
             .getIdentifier().getName())) {
           position = "";
@@ -207,7 +215,6 @@ public class XboxInput {
             //negative direction
             int leftPower;
             int rightPower;
-            String command;
             switch (current.getIdentifier().getName()) {
               case "x":
                 //Left thumbstick - Left

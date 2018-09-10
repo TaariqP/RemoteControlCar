@@ -30,6 +30,7 @@ public class ControllerServer {
   private double conToServer;
 
 
+  //Ignore first few anomalous results
   public boolean toIgnore() {
     if (ignoreCounter < 8) {
       return true;
@@ -37,6 +38,7 @@ public class ControllerServer {
     return false;
   }
 
+  //Get the total latencies
   public List<Double> getTheTotals() {
     return theTotals;
   }
@@ -48,10 +50,12 @@ public class ControllerServer {
     carToServPings = new ArrayList<>();
   }
 
+  //Returns the current total latency
   public static double getTotal() {
     return total;
   }
 
+  //Get IPAddress from a file
   public void getIPAddress() throws IOException {
     BufferedReader bufferedReader = null;
     try {
@@ -65,7 +69,6 @@ public class ControllerServer {
   }
 
   public void startRunning() {
-
     //Create the graph application in a window
     new Thread(() -> Application.launch(LineGraph.class)).start();
 
@@ -84,22 +87,23 @@ public class ControllerServer {
     }
   }
 
+  //Sets the power for the car motors
   public void setPower(String command) {
     this.command = command;
     sendCommands();
   }
 
   public void sendCommands() {
-    //Send commands to the Legacy.Server to send to the Car
+    //Send commands to the server to send to the Car
     try {
       sendToServer(command);
-      //Check server type to run the following command
       calculatePing();
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
+  //Calculates the ping
   private void calculatePing() throws IOException {
     conToServer = ping();
     total = carToServer + conToServer;
@@ -118,6 +122,7 @@ public class ControllerServer {
     ignoreCounter++;
   }
 
+  //Sends a ping and receives the relevant latencies back.
   public double ping() throws IOException {
     Date now = new Date();
     long sendTime = now.getTime();
@@ -148,6 +153,7 @@ public class ControllerServer {
 
   }
 
+  //Sends a message to the server
   public void sendToServer(String message) throws IOException {
     sendData = new byte[1024];
     sendData = message.getBytes();
@@ -158,6 +164,7 @@ public class ControllerServer {
     System.out.println("SENT: " + message);
   }
 
+  //Receives a message from the server
   public String receiveFromServer() throws IOException {
     String message;
     receiveData = new byte[1024];
@@ -169,6 +176,7 @@ public class ControllerServer {
     return message;
   }
 
+  //Checks that the server is connected by sending and receiving a message
   public void checkConnection(String message) throws IOException {
     //Send a test packet to the server
     sendToServer(message);
@@ -177,18 +185,22 @@ public class ControllerServer {
     connected = true;
   }
 
+  //Returns the latency between the car and server
   public double getCarToServer() {
     return carToServer;
   }
 
+  //Returns the latency between the Controller and serve
   public double getControllerToServer() {
     return conToServer;
   }
 
+  //Returns the list of car to server latencies
   public List<Double> getCarToServPings() {
     return carToServPings;
   }
 
+  //Returns a list of controller to server latencies
   public List<Double> getContrToServPings() {
     return contrToServPings;
   }
