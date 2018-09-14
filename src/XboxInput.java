@@ -104,7 +104,7 @@ public class XboxInput {
   }
 
   public synchronized static void runController() {
-    //Names of all controllers
+    //Names of all controllers connected to the PC
     List<Controller> controllers = Arrays
         .stream(ControllerEnvironment.getDefaultEnvironment().getControllers())
         .filter(controller -> controller.getType().equals(Type.GAMEPAD))
@@ -253,6 +253,7 @@ public class XboxInput {
                 //X
                 power = -100;
                 server.setPower(createCommand(power, power));
+                break;
             }
           }
         }

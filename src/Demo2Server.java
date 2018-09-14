@@ -9,6 +9,8 @@ public class Demo2Server extends DemoServer {
   private int car2Port;
   private boolean car1Connected = false;
   private boolean car2Connected = false;
+  private String latency1;
+  private String latency2;
 
 
   public static void main(String[] args) {
@@ -73,12 +75,28 @@ public class Demo2Server extends DemoServer {
         listenToCar();
       });
 
+      Thread send = new Thread(() -> {
+        System.out.println("Sending commands...");
+        try {
+          while (true) {
+            Thread.sleep(100);
+            sendCommands();
+          }
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        } finally {
+          closeConnections();
+        }
+      });
+
+      send.start();
       listen_controller.start();
       listen_car.start();
 
       try {
         listen_controller.join();
         listen_car.join();
+        send.join();
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
@@ -112,10 +130,10 @@ public class Demo2Server extends DemoServer {
     }
   }
 
-  public void stopCars() {
+  public void stopCars() throws IOException {
     //Send stop command to both cars
     command = "0,0,0";
-    sendCommands();
+    setPower(command);
   }
 
 
@@ -126,7 +144,8 @@ public class Demo2Server extends DemoServer {
         String command = receiveFromController();
         if (command.substring(0, 4).equals("PING")) {
           //Demo 2 does not need to produce a graph of latency
-          sendToController("0.000");
+          getLatencyCar1();
+          sendToController(latency1);
         } else {
           System.out.println("FROM CONTROLLER: " + command);
           setPower(command);
@@ -163,5 +182,10 @@ public class Demo2Server extends DemoServer {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public void getLatencyCar1() throws IOException {
+    String str = receiveFromCar();
+    latency1 = str.substring(3, 10);
   }
 }

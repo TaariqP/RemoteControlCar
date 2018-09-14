@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class ControllerServer {
   }
 
   public ControllerServer() {
-    System.out.println("UDP Controller Legacy.Server Created");
+    System.out.println("UDP Controller Server Created");
     theTotals = new ArrayList();
     contrToServPings = new ArrayList<>();
     carToServPings = new ArrayList<>();
@@ -59,9 +60,13 @@ public class ControllerServer {
   public void getIPAddress() throws IOException {
     BufferedReader bufferedReader = null;
     try {
+      String filePath = new File("").getAbsolutePath();
+      filePath = filePath.concat("\\src\\ip.txt");
+      System.out.println(filePath);
       bufferedReader = new BufferedReader(new FileReader("ip"
           + ".txt"));
       this.serverAddress = bufferedReader.readLine();
+      System.out.println(serverAddress);
     } finally {
       assert bufferedReader != null;
       bufferedReader.close();
